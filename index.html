@@ -51,7 +51,7 @@ a{color:inherit}
 @keyframes morph{to{border-radius:42% 58% 40% 60%/58% 42% 58% 42%;transform:rotate(7deg) scale(1.03)}}
 .frame{position:absolute;inset:0;border-radius:170px 170px 18px 18px;overflow:hidden;background:var(--panel);border:2px solid var(--ink);z-index:1;opacity:0;transform:scale(.94);animation:pop .9s .25s cubic-bezier(.2,.8,.2,1) forwards;cursor:pointer;padding:0;display:block;width:100%}
 @keyframes pop{to{opacity:1;transform:none}}
-.frame img{width:100%;height:100%;object-fit:cover;display:none}
+.frame img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:none}
 .frame.has img{display:block}
 .frame .ph{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:6px;color:var(--soft);font-size:14px}
 .frame .ph strong{font:800 84px/1 "Bricolage Grotesque",sans-serif;color:var(--accent)}
@@ -266,7 +266,17 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   // photo upload (stored in this browser only)
   var frame = document.getElementById('frame'), img = document.getElementById('img'), file = document.getElementById('file');
   function show(src){ img.src = src; frame.classList.add('has'); }
-  try { var saved = localStorage.getItem('cn-photo'); if (saved) show(saved); } catch(e){}
+  var names = ['photo.jpg','photo.jpeg','photo.png','photo.webp'];
+  (function tryNext(i){
+    if (i >= names.length) {
+      try { var saved = localStorage.getItem('cn-photo'); if (saved) show(saved); } catch(e){}
+      return;
+    }
+    var t = new Image();
+    t.onload = function(){ show(names[i]); };
+    t.onerror = function(){ tryNext(i + 1); };
+    t.src = names[i];
+  })(0);
   frame.addEventListener('click', function(){ file.click(); });
   file.addEventListener('change', function(){
     var f = file.files[0]; if (!f) return;
